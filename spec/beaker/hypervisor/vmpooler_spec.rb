@@ -142,6 +142,31 @@ module Beaker
                           /Vmpooler\.provision - requested VM templates \[[^\,]*\] not available/
              ) # should be only one item in the list, no commas
       end
+
+      it 'ignores the ssh connection type when explicitly configured' do
+        hosts = make_hosts
+        hosts.each {|h| h[:connection_method] = 'explicit_connection_type'}
+
+        vmpooler = Beaker::Vmpooler.new( hosts, make_opts )
+        vmpooler.provision
+
+        hosts = vmpooler.instance_variable_get( :@hosts )
+        hosts.each do | host |
+          expect(host[:connection_method]).to be === 'explicit_connection_type'
+        end
+      end
+
+      it 'sets the ssh connection type to vmhostname when not explicitly configured' do
+        #p make_hosts
+        vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
+        vmpooler.provision
+
+        hosts = vmpooler.instance_variable_get( :@hosts )
+        hosts.each do | host |
+         # p host
+          expect(host[:connection_method]).to be === 'vmhostname'
+        end
+      end
     end
 
     describe "#cleanup" do
