@@ -52,6 +52,10 @@ module Beaker
       YAML.load_file(dot_fog)
     end
 
+    def connection_preference
+      ['vmhostname', 'ip', 'hostname']
+    end
+
     def check_url url
       begin
         URI.parse(url)
