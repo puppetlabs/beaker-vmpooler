@@ -6,6 +6,8 @@ Beaker library to use vmpooler hypervisor
  
 This is a gem that allows you to use hosts with [vmpooler](vmpooler.md) hypervisor with [beaker](https://github.com/puppetlabs/beaker). This gem is already included as [beaker dependency](https://github.com/puppetlabs/beaker/blob/master/beaker.gemspec#L59) for you, so you don't need to do anything special to use this gem's functionality with beaker.
 
+
+
 # Spec tests
 
 Spec test live under the `spec` folder. There are the default rake task and therefore can run with a simple command:
