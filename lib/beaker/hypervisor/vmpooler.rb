@@ -247,6 +247,10 @@ module Beaker
           @logger.debug "No disks to add for #{hostname}"
         end
       end
+
+      # Override SSH connection method if not already explicitly configured.
+      # IP addresses can change across reboots with vmpooler so prefer DNS based resolution
+      @hosts.each {|h| h[:connection_method] ||= 'vmhostname'}
     end
 
     def cleanup
