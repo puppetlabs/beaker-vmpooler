@@ -52,7 +52,7 @@ module Beaker
       YAML.load_file(dot_fog)
     end
 
-    def connection_preference
+    def connection_preference(host)
       ['vmhostname', 'ip', 'hostname']
     end
 
