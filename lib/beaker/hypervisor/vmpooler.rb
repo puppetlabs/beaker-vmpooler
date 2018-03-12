@@ -53,7 +53,7 @@ module Beaker
     end
 
     def connection_preference(host)
-      ['vmhostname', 'ip', 'hostname']
+      [:vmhostname, :ip, :hostname]
     end
 
     def check_url url
