@@ -27,29 +27,17 @@ module Beaker
 
     def load_credentials(dot_fog = '.fog')
       creds = {}
-
-      if fog = read_fog_file(dot_fog)
-        if fog[:default] && fog[:default][:vmpooler_token]
-          creds[:vmpooler_token] = fog[:default][:vmpooler_token]
+      begin
+        fog = parse_fog_file(dot_fog)
+        if fog[:vmpooler_token]
+          creds[:vmpooler_token] = fog[:vmpooler_token]
         else
-          @logger.warn "Credentials file (#{dot_fog}) is missing a :default section with a :vmpooler_token value; proceeding without authentication"
+          @logger.warn "vmpooler_token not found in credentials file (#{dot_fog})\nProceeding without authentication"
         end
-      else
-        @logger.warn "Credentials file (#{dot_fog}) is empty; proceeding without authentication"
+      rescue ArgumentError => e
+        @logger.warn "Invalid credentials file:\n(#{e.class}) #{e.message}\nProceeding without authentication"
       end
-
       creds
-
-    rescue TypeError, Psych::SyntaxError => e
-      @logger.warn "#{e.class}: Credentials file (#{dot_fog}) has invalid syntax; proceeding without authentication"
-      creds
-    rescue Errno::ENOENT
-      @logger.warn "Credentials file (#{dot_fog}) not found; proceeding without authentication"
-      creds
-    end
-
-    def read_fog_file(dot_fog = '.fog')
-      YAML.load_file(dot_fog)
     end
 
     def connection_preference(host)

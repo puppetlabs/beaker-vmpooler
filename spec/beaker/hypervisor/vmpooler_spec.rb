@@ -169,16 +169,15 @@ module Beaker
     describe "#load_credentials" do
 
       it 'continues without credentials when fog file is missing' do
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_raise(Errno::ENOENT.new)
+        expect( File ).to receive( :exist? ) { false }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == {}
       end
 
       it 'continues without credentials when fog file is empty' do
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_return(false)
+        expect( File ).to receive( :exist? ) { true }
+        expect( File ).to receive( :open ) { "" }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == {}
@@ -187,8 +186,8 @@ module Beaker
       it 'continues without credentials when fog file contains no :default section' do
         data = { :some => { :other => :data } }
 
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_return(data)
+        expect( File ).to receive( :exist? ) { true }
+        expect( YAML ).to receive( :load_file ) { data }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == { }
@@ -197,8 +196,8 @@ module Beaker
       it 'continues without credentials when fog file :default section has no :vmpooler_token' do
         data = { :default => { :something_else => "TOKEN" } }
 
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_return(data)
+        expect( File ).to receive( :exist? ) { true }
+        expect( YAML ).to receive( :load_file ) { data }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == { }
@@ -207,42 +206,28 @@ module Beaker
       it 'continues without credentials when there are formatting errors in the fog file' do
         data = { "'default'" => { :vmpooler_token => "b2wl8prqe6ddoii70md" } }
 
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_return(data)
+        expect( File ).to receive( :exist? ) { true }
+        expect( YAML ).to receive( :load_file ) { data }
 
-        logger = double('logger')
+        logger = double( 'logger' )
 
-        expect(logger).to receive(:warn).with(/is missing a :default section with a :vmpooler_token value/)
-        make_opts = {:logger => logger}
+        expect( logger ).to receive( :warn ).with( /is missing the required section: `default`/ )
+        make_opts = { :logger => logger }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == { }
       end
 
-      it 'throws a TypeError and continues without credentials when there are syntax errors in the fog file' do
-        data = "'default'\n  :vmpooler_token: z2wl8prqe0ddoii70ad"
-
-        allow( File ).to receive( :open ).and_yield( StringIO.new(data)  )
-        logger = double('logger')
-
-        expect(logger).to receive(:warn).with(/TypeError: .* has invalid syntax/)
-        make_opts = {:logger => logger}
-
-        vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
-
-        expect( vmpooler.credentials ).to be == { }
-      end
-
-      it 'throws a Psych::SyntaxError and continues without credentials when there are syntax errors in the fog file' do
-
+      it 'continues without credentials when there are syntax errors in the fog file' do
         data = ";default;\n  :vmpooler_token: z2wl8prqe0ddoii707d"
 
-        allow( File ).to receive( :open ).and_yield( StringIO.new(data)  )
+        expect( File ).to receive( :exist? ) { true }
+        allow( File ).to receive( :open ).and_yield( StringIO.new( data )  )
 
-        logger = double('logger')
+        logger = double( 'logger' )
 
-        expect(logger).to receive(:warn).with(/Psych::SyntaxError: .* invalid syntax/)
-        make_opts = {:logger => logger}
+        expect( logger ).to receive( :warn ).with( /Psych::SyntaxError/ )
+        make_opts = { :logger => logger }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
 
@@ -252,8 +237,8 @@ module Beaker
       it 'stores vmpooler token when found in fog file' do
         data = { :default => { :vmpooler_token => "TOKEN" } }
 
-        allow_any_instance_of( Beaker::Vmpooler ).to \
-          receive(:read_fog_file).and_return(data)
+        expect( File ).to receive( :exist? ) { true }
+        expect( YAML ).to receive( :load_file ) { data }
 
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
         expect( vmpooler.credentials ).to be == { :vmpooler_token => "TOKEN" }
