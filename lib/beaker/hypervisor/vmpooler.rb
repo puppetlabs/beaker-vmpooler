@@ -28,7 +28,7 @@ module Beaker
     def load_credentials(dot_fog = '.fog')
       creds = {}
       begin
-        fog = parse_fog_file(dot_fog)
+        fog = get_fog_credentials(dot_fog)
         if fog[:vmpooler_token]
           creds[:vmpooler_token] = fog[:vmpooler_token]
         else
