@@ -19,7 +19,6 @@ end
 # don't want to create a transitive dependency
 group :acceptance_testing do
   gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '~> 3.0')
-  # gem "beaker-abs", *location_for(ENV['ABS_VERSION'] || '~> 0.3.0')
 end
 
 
