@@ -4,10 +4,6 @@ module Beaker
   describe Vmpooler do
 
     before :each do
-      vms = make_hosts()
-      MockVsphereHelper.set_config( fog_file_contents )
-      MockVsphereHelper.set_vms( vms )
-      stub_const( "VsphereHelper", MockVsphereHelper )
       stub_const( "Net", MockNet )
       allow( JSON ).to receive( :parse ) do |arg|
         arg
@@ -147,20 +143,15 @@ module Beaker
     describe "#cleanup" do
 
       it "cleans up hosts in the pool" do
-        MockVsphereHelper.powerOn
-
+        mock_http = MockNet::HTTP.new( "host", "port" )
         vmpooler = Beaker::Vmpooler.new( make_hosts, make_opts )
-        allow( vmpooler ).to receive( :require ).and_return( true )
-        allow( vmpooler ).to receive( :sleep ).and_return( true )
         vmpooler.provision
-        vmpooler.cleanup
+        vm_count = vmpooler.instance_variable_get( :@hosts ).count
 
-        hosts = vmpooler.instance_variable_get( :@hosts )
-        hosts.each do | host |
-          name = host.name
-          vm = MockVsphereHelper.find_vm( name )
-          expect( vm.runtime.powerState ).to be === "poweredOn" #handed back to the pool, stays on
-        end
+        expect( Net::HTTP ).to receive( :new ).exactly( vm_count ).times.and_return( mock_http )
+        expect( mock_http ).to receive( :request ).exactly( vm_count ).times
+        expect( Net::HTTP::Delete ).to receive( :new ).exactly( vm_count ).times
+        expect{ vmpooler.cleanup }.to_not raise_error
       end
     end
   end
@@ -168,10 +159,6 @@ module Beaker
   describe Vmpooler do
 
     before :each do
-      vms = make_hosts()
-      MockVsphereHelper.set_config( fog_file_contents )
-      MockVsphereHelper.set_vms( vms )
-      stub_const( "VsphereHelper", MockVsphereHelper )
       stub_const( "Net", MockNet )
       allow( JSON ).to receive( :parse ) do |arg|
         arg
