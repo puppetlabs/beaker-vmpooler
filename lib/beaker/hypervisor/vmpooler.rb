@@ -169,7 +169,7 @@ module Beaker
           @logger.debug("Retrying provision for vmpooler host after waiting #{wait} second(s)")
           sleep wait
           waited += wait
-          last_wait, wait = wait, last_wait + wait
+          last_wait, wait = wait, [last_wait + wait, 15].min + rand(5)
           retry
         end
         report_and_raise(@logger, e, 'Vmpooler.provision')
