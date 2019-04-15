@@ -274,7 +274,7 @@ module Beaker
       end
 
       begin
-        uri = URI.parse(@options[:pooling_api] + '/api/v1/vm/' + hostname + '/disk/' + disk_size.to_s)
+        uri = URI.parse(@options[:pooling_api] + '/vm/' + hostname + '/disk/' + disk_size.to_s)
 
         http = Net::HTTP.new(uri.host, uri.port)
         request = Net::HTTP::Post.new(uri.request_uri)
