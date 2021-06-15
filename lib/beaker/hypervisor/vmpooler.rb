@@ -114,6 +114,7 @@ module Beaker
         uri = URI.parse(@options['pooling_api'] + '/vm/')
 
         http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.instance_of?(URI::HTTPS)
         request = Net::HTTP::Post.new(uri.request_uri)
 
         if @credentials[:vmpooler_token]
@@ -185,6 +186,7 @@ module Beaker
           uri = URI.parse(@options[:pooling_api] + '/vm/' + h['vmhostname'].split('.')[0])
 
           http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.instance_of?(URI::HTTPS)
           request = Net::HTTP::Put.new(uri.request_uri)
 
           # merge pre-defined tags with host tags
@@ -250,6 +252,7 @@ module Beaker
         uri = URI.parse(get_template_url(@options['pooling_api'], name))
 
         http = Net::HTTP.new( uri.host, uri.port )
+        http.use_ssl = uri.instance_of?(URI::HTTPS)
         request = Net::HTTP::Delete.new(uri.request_uri)
 
         if @credentials[:vmpooler_token]
@@ -277,6 +280,7 @@ module Beaker
         uri = URI.parse(@options[:pooling_api] + '/api/v1/vm/' + hostname + '/disk/' + disk_size.to_s)
 
         http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.instance_of?(URI::HTTPS)
         request = Net::HTTP::Post.new(uri.request_uri)
         request['X-AUTH-TOKEN'] = @credentials[:vmpooler_token]
 
@@ -309,6 +313,7 @@ module Beaker
         uri = URI.parse(@options[:pooling_api] + '/vm/' + hostname)
 
         http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.instance_of?(URI::HTTPS)
         request = Net::HTTP::Get.new(uri.request_uri)
 
         response = http.request(request)
