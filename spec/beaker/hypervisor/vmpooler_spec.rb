@@ -5,6 +5,7 @@ module Beaker
 
     before :each do
       stub_const( "Net", MockNet )
+      allow_any_instance_of(MockNet::HTTP).to receive(:use_ssl=)
       allow( JSON ).to receive( :parse ) do |arg|
         arg
       end
