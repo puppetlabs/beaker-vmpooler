@@ -2,8 +2,6 @@ source ENV['GEM_SOURCE'] || "https://rubygems.org"
 
 gemspec :development_group => :acceptance_testing
 
-
-
 def location_for(place, fake_version = nil)
   if place =~ /^(git:[^#]*)#(.*)/
     [fake_version, { :git => $1, :branch => $2, :require => false }].compact
@@ -14,15 +12,13 @@ def location_for(place, fake_version = nil)
   end
 end
 
-
 # We don't put beaker in as a test dependency because we
 # don't want to create a transitive dependency
 group :acceptance_testing do
-  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '~> 4.0')
+  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '~> 5.0')
   gem "beaker-abs"
 end
 
-
-if File.exists? "#{__FILE__}.local"
+if File.exist? "#{__FILE__}.local"
   eval(File.read("#{__FILE__}.local"), binding)
 end
